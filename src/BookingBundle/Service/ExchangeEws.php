@@ -2,7 +2,6 @@
 
 namespace BookingBundle\Service;
 
-
 use DateTime;
 use InvalidArgumentException;
 use PhpEws\DataType\ArrayOfMailboxData;
@@ -24,7 +23,6 @@ use PhpEws\DataType\MeetingAttendeeType;
 use PhpEws\DataType\NonEmptyArrayOfBaseFolderIdsType;
 use PhpEws\DataType\SerializableTimeZone;
 use PhpEws\DataType\SerializableTimeZoneTime;
-use PhpEws\DataType\TimeZoneDefinitionType;
 use PhpEws\EwsConnection;
 
 class ExchangeEws
@@ -99,7 +97,7 @@ class ExchangeEws
         $request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
         $request->ParentFolderIds->DistinguishedFolderId = new DistinguishedFolderIdType();
         $request->ParentFolderIds->DistinguishedFolderId->Id = DistinguishedFolderIdNameType::CALENDAR;
-        $request->ParentFolderIds->DistinguishedFolderId->Mailbox = new \StdClass;
+        $request->ParentFolderIds->DistinguishedFolderId->Mailbox = new \stdClass;
         $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $email;
 
         // Send request
