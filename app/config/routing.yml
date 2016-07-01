@@ -1,0 +1,7 @@
+booking:
+    resource: "@BookingBundle/Resources/config/routing.yml"
+    prefix:   /booking
+
+app:
+    resource: "@AppBundle/Controller/"
+    type:     annotation

@@ -1,0 +1,11 @@
+booking_homepage:
+    path:     /
+    defaults: { _controller: BookingBundle:Default:index }
+
+booking_get_by_room:
+    path:     /room/{email}
+    defaults: { _controller: BookingBundle:Default:getByRoom, email: null }
+
+booking_detail_get_by_room:
+    path:     /room/{email}/detail
+    defaults: { _controller: BookingBundle:Default:getDetailByRoom, email: null }
