@@ -75,7 +75,7 @@ class ExchangeEws
         return $this->client->GetUserAvailability($request);
     }
 
-    public function getBookingDetailByRoom($email)
+    public function getBookingDetailByRoom($email, \DateTime $startDate, \DateTime $endDate)
     {
         if (!in_array($email, $this->availableRooms)) {
             throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $email);
@@ -90,8 +90,8 @@ class ExchangeEws
 
         // Define the timeframe to load calendar items
         $request->CalendarView = new CalendarViewType();
-        $request->CalendarView->StartDate = (new \DateTime('today'))->format(DATE_W3C);
-        $request->CalendarView->EndDate = (new \DateTime('today'))->add(new \DateInterval('P1D'))->format(DATE_W3C);
+        $request->CalendarView->StartDate = $startDate->format(DATE_W3C);
+        $request->CalendarView->EndDate = $endDate->format(DATE_W3C);
 
         // Only look in the "calendars folder"
         $request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
@@ -101,9 +101,7 @@ class ExchangeEws
         $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $email;
 
         // Send request
-        $response = $this->client->FindItem($request);
-
-        var_dump($response);die;
+        return $this->client->FindItem($request);
     }
 
     public function isRoomAvailable($email)

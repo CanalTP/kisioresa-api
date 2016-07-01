@@ -24,20 +24,44 @@ class DefaultController extends Controller
 
     public function isRoomAvailableAction($email = null)
     {
-        $dailyAvailability = $this
-            ->get('booking.exchange_ews')
+        $service = $this->get('booking.exchange_ews');
+
+        $dailyAvailability = $service
             ->getBookingByRoom($email)
             ->FreeBusyResponseArray
             ->FreeBusyResponse
             ->FreeBusyView
             ->MergedFreeBusy;
 
+        $isAvailable = $service->isRoomAvailable($email);
+
+        $data = [
+            'is_room_available' => $isAvailable,
+            'email_room' => $email,
+            'daily_availability' => $dailyAvailability,
+        ];
+
+        if (!$isAvailable) {
+            $startDate = new \DateTime();
+            $endDate = (new \DateTime())->modify('+30 minutes');
+            $currentMeeting = $service->getBookingDetailByRoom($email, $startDate, $endDate);
+            $organizer = $currentMeeting
+                ->ResponseMessages
+                ->FindItemResponseMessage
+                ->RootFolder
+                ->Items
+                ->CalendarItem
+                ->Organizer
+                ->Mailbox
+                ->Name;
+
+            $data['current_meeting'] = [
+                'organizer' => $organizer,
+            ];
+        }
+
         return new Response(
-            json_encode([
-                'is_room_available' => $this->get('booking.exchange_ews')->isRoomAvailable($email),
-                'email_room' => $email,
-                'daily_availability' => $dailyAvailability,
-            ]),
+            json_encode($data),
             200,
             array('Content-Type' => 'application/json')
         );
