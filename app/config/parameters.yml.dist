@@ -21,3 +21,27 @@ parameters:
     booking_bundle_wsdl: "webmail.keolis.com"
     booking_bundle_username: "username"
     booking_bundle_password: "pwd"
+    booking_available_rooms:
+        - hmt-roussillon@effia.fr
+        - hmt-argentine@effia.fr
+        - hmt-bresil@effia.fr
+        - hmt-croatie@effia.fr
+        - hmt-equateur@effia.fr
+        - hmt-espagne@effia.fr
+        - hmt-irlande@effia.fr
+        - hmt-italie@effia.fr
+        - hmt-maroc@effia.fr
+        - hmt-norvege@effia.fr
+        - hmt-pays-bas@effia.fr
+        - hmt-russie@effia.fr
+        - hmt-aquitaine@effia.fr
+        - hmt-bourgogne@effia.fr
+        - hmt-idf@effia.fr
+        - hmt-lorraine@effia.fr
+        - hmt-luxembourg@effia.fr
+        - hmt-paca@effia.fr
+        - hmt-paysdelaloire@effia.fr
+        - hmt-picardie@effia.fr
+        - hmt-champagne@effia.fr
+        - hmt-bretagne@effia.fr
+        - hmt-limousin@effia.fr

@@ -4,7 +4,6 @@ namespace BookingBundle\Service;
 
 use DateTime;
 use InvalidArgumentException;
-use PhpEws\DataType\ArrayOfMailboxData;
 use PhpEws\DataType\CalendarViewType;
 use PhpEws\DataType\DayOfWeekType;
 use PhpEws\DataType\DefaultShapeNamesType;
@@ -27,38 +26,15 @@ use PhpEws\EwsConnection;
 
 class ExchangeEws
 {
-    const ROOM_ARGENTINE  = 'hmt-argentine@effia.fr';
-    const ROOM_BRESIL     = 'hmt-bresil@effia.fr';
-    const ROOM_CROATIE    = 'hmt-croatie@effia.fr';
-    const ROOM_EQUATEUR   = 'hmt-equateur@effia.fr';
-    const ROOM_IRLANDE    = 'hmt-irlande@effia.fr';
-    const ROOM_ITALIE     = 'hmt-italie@effia.fr';
-    const ROOM_LUXEMBOURG = 'hmt-luxembourg@effia.fr';
-    const ROOM_MAROC      = 'hmt-maroc@effia.fr';
-    const ROOM_NORVEGE    = 'hmt-norvege@effia.fr';
-    const ROOM_PAYS_BAS   = 'hmt-pays-bas@effia.fr';
-
-    private $availableRooms = [
-        self::ROOM_ARGENTINE,
-        self::ROOM_BRESIL,
-        self::ROOM_CROATIE,
-        self::ROOM_EQUATEUR,
-        self::ROOM_IRLANDE,
-        self::ROOM_ITALIE,
-        self::ROOM_LUXEMBOURG,
-        self::ROOM_MAROC,
-        self::ROOM_NORVEGE,
-        self::ROOM_PAYS_BAS,
-    ];
-
     /**
      * @var EwsConnection
      */
     private $client = null;
 
-    public function __construct($endpoint, $username, $password)
+    public function __construct($endpoint, $username, $password, array $availableRooms)
     {
         $this->client = new EwsConnection($endpoint, $username, $password, EwsConnection::VERSION_2010_SP2);
+        $this->availableRooms = $availableRooms;
     }
 
     public function getBookingByRoom($email)
@@ -116,7 +92,16 @@ class ExchangeEws
     }
 
     private function buildBookingRoomRequest(
-        $email,
+        $roomMail,
+        \DateTime $startDate,
+        \DateTime $endDate,
+        $requestedView = FreeBusyViewType::DETAILED_MERGED
+    ) {
+        return $this->buildBookingRoomRequestFromList([$roomMail], $startDate, $endDate, $requestedView);
+    }
+
+    private function buildBookingRoomRequestFromList(
+        array $roomMailList,
         \DateTime $startDate,
         \DateTime $endDate,
         $requestedView = FreeBusyViewType::DETAILED_MERGED
@@ -139,12 +124,16 @@ class ExchangeEws
         $request->TimeZone->DaylightTime->Month = 4;
         $request->TimeZone->DaylightTime->DayOfWeek = DayOfWeekType::SUNDAY;
 
-        $request->MailboxDataArray = new ArrayOfMailboxData();
-        $request->MailboxDataArray->MailboxData = new MailboxData();
-        $request->MailboxDataArray->MailboxData->Email = new EmailAddress();
-        $request->MailboxDataArray->MailboxData->Email->Address = $email;
-        $request->MailboxDataArray->MailboxData->AttendeeType = MeetingAttendeeType::ROOM;
-        $request->MailboxDataArray->MailboxData->ExcludeConflicts = false;
+        $request->MailboxDataArray = [];
+        foreach ($roomMailList as $roomMail) {
+            $mailboxData = new MailboxData();
+            $mailboxData->Email = new EmailAddress();
+            $mailboxData->Email->Address = $roomMail;
+            $mailboxData->Email->RoutingType = 'SMTP';
+            $mailboxData->AttendeeType = MeetingAttendeeType::ROOM;
+            $mailboxData->ExcludeConflicts = false;
+            $request->MailboxDataArray[] = $mailboxData;
+        }
 
         $request->FreeBusyViewOptions = new FreeBusyViewOptionsType();
         $request->FreeBusyViewOptions->TimeWindow = new Duration();
@@ -155,5 +144,23 @@ class ExchangeEws
         $request->FreeBusyViewOptions->RequestedView = $requestedView;
 
         return $request;
+    }
+
+    public function getOccupiedRoomCount() {
+        $startDate = new \DateTime('now');
+        $endDate = (new \DateTime('now'))->modify('+30 minutes');
+
+        $request = $this->buildBookingRoomRequestFromList($this->availableRooms, $startDate, $endDate, FreeBusyViewType::FREE_BUSY_MERGED);
+
+        $booking = $this->client->GetUserAvailability($request);
+
+        $count = 0;
+        foreach ($booking->FreeBusyResponseArray->FreeBusyResponse as $response) {
+            if ($response->FreeBusyView->MergedFreeBusy != 0) {
+                $count++;
+            }
+        }
+
+        return $count;
     }
 }

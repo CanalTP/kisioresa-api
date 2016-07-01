@@ -13,3 +13,7 @@ booking_detail_get_by_room:
 booking_is_room_available:
     path:     /room/{email}/is_available
     defaults: { _controller: BookingBundle:Default:isRoomAvailable, email: null }
+
+booking_count_occupied_room:
+    path:     /rooms/occupied_count
+    defaults: { _controller: BookingBundle:Default:getOccupiedRoomCount }

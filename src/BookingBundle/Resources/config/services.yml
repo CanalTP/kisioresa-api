@@ -1,4 +1,4 @@
 services:
     booking.exchange_ews:
         class: BookingBundle\Service\ExchangeEws
-        arguments: [%booking_bundle_wsdl%, %booking_bundle_username%, %booking_bundle_password%]
+        arguments: [%booking_bundle_wsdl%, %booking_bundle_username%, %booking_bundle_password%, %booking_available_rooms%]

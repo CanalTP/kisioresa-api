@@ -66,4 +66,17 @@ class DefaultController extends Controller
             array('Content-Type' => 'application/json')
         );
     }
+
+    public function getOccupiedRoomCountAction()
+    {
+        $service = $this->get('booking.exchange_ews');
+
+        $service->getOccupiedRoomCount();
+
+        return new Response(
+            json_encode($service->getOccupiedRoomCount()),
+            200,
+            array('Content-Type' => 'application/json')
+        );
+    }
 }
