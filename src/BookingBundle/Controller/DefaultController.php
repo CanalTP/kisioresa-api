@@ -58,6 +58,8 @@ class DefaultController extends Controller
             $data['current_meeting'] = [
                 'organizer' => $organizer,
             ];
+
+            $data['suggested_rooms'] = $service->findAvailableRoomsAround($email);
         }
 
         return new Response(

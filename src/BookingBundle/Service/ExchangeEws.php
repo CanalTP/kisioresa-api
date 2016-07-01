@@ -164,4 +164,61 @@ class ExchangeEws
 
         return $count;
     }
+
+    public function findAvailableRoomsAround($roomMail)
+    {
+        if (! array_key_exists($roomMail, $this->availableRooms)) {
+            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $roomMail);
+        }
+
+        $equivalentRooms = $this->getEquivalentRooms($roomMail);
+
+        $equivalentAvailableRooms = [];
+
+        if (count($equivalentRooms) > 0) {
+            $startDate = new \DateTime();
+            $endDate = (new \DateTime())->modify('+1 hour');
+            $request = $this->buildBookingRoomRequestFromList($equivalentRooms, $startDate, $endDate, FreeBusyViewType::FREE_BUSY_MERGED);
+
+            $booking = $this->client->GetUserAvailability($request);
+
+            if (is_array($booking->FreeBusyResponseArray->FreeBusyResponse)) {
+                for ($cpt = 0; $cpt < count($equivalentRooms); $cpt++) {
+                    if (0 == $booking->FreeBusyResponseArray->FreeBusyResponse[$cpt]->FreeBusyView->MergedFreeBusy) {
+                        $equivalentAvailableRooms[$equivalentRooms[$cpt]] = $this->availableRooms[$equivalentRooms[$cpt]];
+                    }
+                }
+            } else {
+                if (0 == $booking->FreeBusyResponseArray->FreeBusyResponse->FreeBusyView->MergedFreeBusy) {
+                    $equivalentAvailableRooms[$equivalentRooms[0]] = $this->availableRooms[$equivalentRooms[0]];
+                }
+            }
+            $baseRoomConfig = $this->availableRooms[$roomMail];
+
+            usort($equivalentAvailableRooms, function($a, $b) use ($baseRoomConfig) {
+                return (abs($a['floor'] - $baseRoomConfig['floor']) >= abs($b['floor'] - $baseRoomConfig['floor']));
+            });
+        }
+
+        return $equivalentAvailableRooms;
+    }
+
+    private function getEquivalentRooms($baseRoomMail)
+    {
+        $baseRoomConfig = $this->availableRooms[$baseRoomMail];
+
+        $equivalentRooms = [];
+        foreach($this->availableRooms as $roomMail => $roomConfig) {
+            if ($roomMail == $baseRoomMail) {
+                continue;
+            } elseif (
+                $roomConfig['places_count'] <= $baseRoomConfig['places_count'] + 2
+                && $roomConfig['places_count'] >= $baseRoomConfig['places_count'] - 2
+            ) {
+                $equivalentRooms[] = $roomMail;
+            }
+        }
+
+        return $equivalentRooms;
+    }
 }
