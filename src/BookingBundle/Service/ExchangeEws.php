@@ -37,24 +37,24 @@ class ExchangeEws
         $this->availableRooms = $availableRooms;
     }
 
-    public function getBookingByRoom($email)
+    public function getBookingByRoom($roomMail)
     {
-        if (!in_array($email, $this->availableRooms)) {
-            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $email);
+        if (!in_array($roomMail, array_keys($this->availableRooms))) {
+            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $roomMail);
         }
 
         $startDate = new \DateTime('today');
         $endDate = (new \DateTime('today'))->modify('+1 day');
 
-        $request = $this->buildBookingRoomRequest($email, $startDate, $endDate);
+        $request = $this->buildBookingRoomRequest($roomMail, $startDate, $endDate);
 
         return $this->client->GetUserAvailability($request);
     }
 
-    public function getBookingDetailByRoom($email, \DateTime $startDate, \DateTime $endDate)
+    public function getBookingDetailByRoom($roomMail, \DateTime $startDate, \DateTime $endDate)
     {
-        if (!in_array($email, $this->availableRooms)) {
-            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $email);
+        if (!in_array($roomMail, array_keys($this->availableRooms))) {
+            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $roomMail);
         }
 
         $request = new FindItemType();
@@ -74,17 +74,17 @@ class ExchangeEws
         $request->ParentFolderIds->DistinguishedFolderId = new DistinguishedFolderIdType();
         $request->ParentFolderIds->DistinguishedFolderId->Id = DistinguishedFolderIdNameType::CALENDAR;
         $request->ParentFolderIds->DistinguishedFolderId->Mailbox = new \stdClass;
-        $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $email;
+        $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $roomMail;
 
         // Send request
         return $this->client->FindItem($request);
     }
 
-    public function isRoomAvailable($email)
+    public function isRoomAvailable($roomMail)
     {
         $startDate = new \DateTime('now');
         $endDate = (new \DateTime('now'))->modify('+30 minutes');
-        $request = $this->buildBookingRoomRequest($email, $startDate, $endDate, FreeBusyViewType::DETAILED_MERGED);
+        $request = $this->buildBookingRoomRequest($roomMail, $startDate, $endDate, FreeBusyViewType::DETAILED_MERGED);
 
         $booking = $this->client->GetUserAvailability($request);
 
@@ -146,11 +146,12 @@ class ExchangeEws
         return $request;
     }
 
-    public function getOccupiedRoomCount() {
+    public function getOccupiedRoomCount()
+    {
         $startDate = new \DateTime('now');
         $endDate = (new \DateTime('now'))->modify('+30 minutes');
-
-        $request = $this->buildBookingRoomRequestFromList($this->availableRooms, $startDate, $endDate, FreeBusyViewType::FREE_BUSY_MERGED);
+        
+        $request = $this->buildBookingRoomRequestFromList(array_keys($this->availableRooms), $startDate, $endDate, FreeBusyViewType::FREE_BUSY_MERGED);
 
         $booking = $this->client->GetUserAvailability($request);
 

@@ -22,26 +22,26 @@ parameters:
     booking_bundle_username: "username"
     booking_bundle_password: "pwd"
     booking_available_rooms:
-        - hmt-roussillon@effia.fr
-        - hmt-argentine@effia.fr
-        - hmt-bresil@effia.fr
-        - hmt-croatie@effia.fr
-        - hmt-equateur@effia.fr
-        - hmt-espagne@effia.fr
-        - hmt-irlande@effia.fr
-        - hmt-italie@effia.fr
-        - hmt-maroc@effia.fr
-        - hmt-norvege@effia.fr
-        - hmt-pays-bas@effia.fr
-        - hmt-russie@effia.fr
-        - hmt-aquitaine@effia.fr
-        - hmt-bourgogne@effia.fr
-        - hmt-idf@effia.fr
-        - hmt-lorraine@effia.fr
-        - hmt-luxembourg@effia.fr
-        - hmt-paca@effia.fr
-        - hmt-paysdelaloire@effia.fr
-        - hmt-picardie@effia.fr
-        - hmt-champagne@effia.fr
-        - hmt-bretagne@effia.fr
-        - hmt-limousin@effia.fr
+        hmt-roussillon@effia.fr: { places_count: 4, floor: 2, label: "Box Rousillon" }
+        hmt-argentine@effia.fr: { places_count: 18, floor: 2, label: "Salle Argentine" }
+        hmt-bresil@effia.fr: { places_count: 18, floor: 2, label: "Salle Brésil" }
+        hmt-croatie@effia.fr: { places_count: 8, floor: 2, label: "Salle Croatie" }
+        hmt-equateur@effia.fr: { places_count: 10, floor: 2, label: "Salle Equateur" }
+        hmt-espagne@effia.fr: { places_count: 10, floor: 2, label: "Salle Espagne" }
+        hmt-irlande@effia.fr: { places_count: 12, floor: 2, label: "Salle Irlande" }
+        hmt-italie@effia.fr: { places_count: 12, floor: 2, label: "Salle Italie" }
+        hmt-maroc@effia.fr: { places_count: 8, floor: 2, label: "Salle Maroc" }
+        hmt-norvege@effia.fr: { places_count: 12, floor: 2, label: "Salle Norvège" }
+        hmt-pays-bas@effia.fr: { places_count: 8, floor: 2, label: "Salle Pays-Bas" }
+        hmt-russie@effia.fr: { places_count: 10, floor: 2, label: "Salle Russie" }
+        hmt-aquitaine@effia.fr: { places_count: 4, floor: 3, label: "Box Aquitaine" }
+        hmt-bourgogne@effia.fr: { places_count: 4, floor: 3, label: "Box Bourgogne" }
+        hmt-idf@effia.fr: { places_count: 4, floor: 4, label: "Box Ile-de-France" }
+        hmt-lorraine@effia.fr: { places_count: 4, floor: 4, label: "Box Lorraine" }
+        hmt-luxembourg@effia.fr: { places_count: 10, floor: 4, label: "Salle Luxembourg (Crise DR IDF)" }
+        hmt-paca@effia.fr: { places_count: 4, floor: 5, label: "Box Provence-Alpes-Côte-d'Azur" }
+        hmt-paysdelaloire@effia.fr: { places_count: 4, floor: 5, label: "Box Pays de la Loire" }
+        hmt-picardie@effia.fr: { places_count: 4, floor: 5, label: "Box Picardie" }
+        hmt-champagne@effia.fr: { places_count: 4, floor: 6, label: "Box Champagne" }
+        hmt-bretagne@effia.fr: { places_count: 4, floor: 7, label: "Box Bretagne" }
+        hmt-limousin@effia.fr: { places_count: 4, floor: 7, label: "Box Limousin" }
