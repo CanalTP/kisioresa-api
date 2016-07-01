@@ -17,3 +17,7 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    booking_bundle_wsdl: "webmail.keolis.com"
+    booking_bundle_username: "username"
+    booking_bundle_password: "pwd"
