@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c2ec1c9af8d2e4f2a97cb47d80e9ddeb",
-    "content-hash": "ee21184caeea6fdf809811fcc138199e",
+    "hash": "3cab995648fed45cc82f8953a9d354bc",
+    "content-hash": "8b197e833bc7b11386006e4fd8da76aa",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1003,16 +1003,16 @@
         },
         {
             "name": "php-ews/php-ews",
-            "version": "dev-composer",
+            "version": "dev-fix-expect-header",
             "source": {
                 "type": "git",
-                "url": "https://github.com/jamesiarmes/php-ews.git",
-                "reference": "b373c3804364aa6f31ef77d1561cc4edddc870c8"
+                "url": "https://github.com/vincentlepot/php-ews.git",
+                "reference": "ad70b99b8a0cea14fd51054562940f36540824eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jamesiarmes/php-ews/zipball/b373c3804364aa6f31ef77d1561cc4edddc870c8",
-                "reference": "b373c3804364aa6f31ef77d1561cc4edddc870c8",
+                "url": "https://api.github.com/repos/vincentlepot/php-ews/zipball/ad70b99b8a0cea14fd51054562940f36540824eb",
+                "reference": "ad70b99b8a0cea14fd51054562940f36540824eb",
                 "shasum": ""
             },
             "require": {
@@ -1029,7 +1029,6 @@
                     "": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1040,7 +1039,10 @@
                 }
             ],
             "description": "The PHP Exchange Web Services library (php-ews) is intended to make communication with Microsoft Exchange servers using Exchange Web Services easier. It handles the NTLM authentication required to use the SOAP services and provides an object-oriented interface to the complex types required to form a request.",
-            "time": "2016-04-03 15:23:19"
+            "support": {
+                "source": "https://github.com/vincentlepot/php-ews/tree/fix-expect-header"
+            },
+            "time": "2016-06-30 17:07:58"
         },
         {
             "name": "psr/cache",
@@ -1793,16 +1795,16 @@
         },
         {
             "name": "symfony/symfony",
-            "version": "v3.1.1",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/symfony.git",
-                "reference": "6e1b1497276f8477e9d89b1b6398cf7c7dcebd7d"
+                "reference": "2e98c829524e505a9561ac9e54fa715e8b79905e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/symfony/zipball/6e1b1497276f8477e9d89b1b6398cf7c7dcebd7d",
-                "reference": "6e1b1497276f8477e9d89b1b6398cf7c7dcebd7d",
+                "url": "https://api.github.com/repos/symfony/symfony/zipball/2e98c829524e505a9561ac9e54fa715e8b79905e",
+                "reference": "2e98c829524e505a9561ac9e54fa715e8b79905e",
                 "shasum": ""
             },
             "require": {
@@ -1874,7 +1876,7 @@
                 "doctrine/dbal": "~2.4",
                 "doctrine/doctrine-bundle": "~1.4",
                 "doctrine/orm": "~2.4,>=2.4.5",
-                "egulias/email-validator": "~1.2",
+                "egulias/email-validator": "~1.2,>=1.2.1",
                 "monolog/monolog": "~1.11",
                 "ocramius/proxy-manager": "~0.4|~1.0|~2.0",
                 "phpdocumentor/reflection-docblock": "^3.0",
@@ -1924,7 +1926,7 @@
             "keywords": [
                 "framework"
             ],
-            "time": "2016-06-15 05:59:11"
+            "time": "2016-06-30 17:16:26"
         },
         {
             "name": "twig/twig",
@@ -2043,16 +2045,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v3.1.1",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "f5e7cdc9b5cd3f7d9b0228692cd6ec5736c3b074"
+                "reference": "eeb3bf9a195df7552fdda46f4724a9442d157413"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/f5e7cdc9b5cd3f7d9b0228692cd6ec5736c3b074",
-                "reference": "f5e7cdc9b5cd3f7d9b0228692cd6ec5736c3b074",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/eeb3bf9a195df7552fdda46f4724a9442d157413",
+                "reference": "eeb3bf9a195df7552fdda46f4724a9442d157413",
                 "shasum": ""
             },
             "require": {
@@ -2094,7 +2096,7 @@
             ],
             "description": "Symfony PHPUnit Bridge",
             "homepage": "https://symfony.com",
-            "time": "2016-04-12 18:27:47"
+            "time": "2016-06-29 05:42:25"
         }
     ],
     "aliases": [],

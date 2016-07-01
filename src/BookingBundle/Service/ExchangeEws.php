@@ -69,42 +69,12 @@ class ExchangeEws
             throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $email);
         }
 
-        $request = new GetUserAvailabilityRequestType();
-        $request->TimeZone = new SerializableTimeZone();
-        $request->TimeZone->Bias = 0;
+        $startDate = new \DateTime('today');
+        $endDate = (new \DateTime('today'))->modify('+1 day');
 
-        $request->TimeZone->StandardTime = new SerializableTimeZoneTime();
-        $request->TimeZone->StandardTime->Bias = -60;
-        $request->TimeZone->StandardTime->Time = '02:00:00';
-        $request->TimeZone->StandardTime->DayOrder = 5;
-        $request->TimeZone->StandardTime->Month = 10;
-        $request->TimeZone->StandardTime->DayOfWeek = DayOfWeekType::SUNDAY;
+        $request = $this->buildBookingRoomRequest($email, $startDate, $endDate);
 
-        $request->TimeZone->DaylightTime = new SerializableTimeZoneTime();
-        $request->TimeZone->DaylightTime->Bias = -120;
-        $request->TimeZone->DaylightTime->Time = '02:00:00';
-        $request->TimeZone->DaylightTime->DayOrder = 1;
-        $request->TimeZone->DaylightTime->Month = 4;
-        $request->TimeZone->DaylightTime->DayOfWeek = DayOfWeekType::SUNDAY;
-
-        $request->MailboxDataArray = new ArrayOfMailboxData();
-        $request->MailboxDataArray->MailboxData = new MailboxData();
-        $request->MailboxDataArray->MailboxData->Email = new EmailAddress();
-        $request->MailboxDataArray->MailboxData->Email->Address = 'hmt-Norvege@effia.fr';
-        $request->MailboxDataArray->MailboxData->AttendeeType = MeetingAttendeeType::ROOM;
-        $request->MailboxDataArray->MailboxData->ExcludeConflicts = false;
-
-        $request->FreeBusyViewOptions = new FreeBusyViewOptionsType();
-        $request->FreeBusyViewOptions->TimeWindow = new Duration();
-        $request->FreeBusyViewOptions->TimeWindow->StartTime = (new \DateTime('today'))->format(DATE_W3C);
-        $request->FreeBusyViewOptions->TimeWindow->EndTime = (new \DateTime('today'))->add(new \DateInterval('P1D'))->format(DATE_W3C);
-
-        $request->FreeBusyViewOptions->MergedFreeBusyIntervalInMinutes = 30;
-        $request->FreeBusyViewOptions->RequestedView = FreeBusyViewType::DETAILED_MERGED;
-
-        $response = $this->client->GetUserAvailability($request);
-
-        var_dump($response);die;
+        return $this->client->GetUserAvailability($request);
     }
 
     public function getBookingDetailByRoom($email)
@@ -136,5 +106,58 @@ class ExchangeEws
         $response = $this->client->FindItem($request);
 
         var_dump($response);die;
+    }
+
+    public function isRoomAvailable($email)
+    {
+        $startDate = new \DateTime('now');
+        $endDate = (new \DateTime('now'))->modify('+30 minutes');
+        $request = $this->buildBookingRoomRequest($email, $startDate, $endDate, FreeBusyViewType::DETAILED_MERGED);
+
+        $booking = $this->client->GetUserAvailability($request);
+
+        return 0 == $booking->FreeBusyResponseArray->FreeBusyResponse->FreeBusyView->MergedFreeBusy;
+    }
+
+    private function buildBookingRoomRequest(
+        $email,
+        \DateTime $startDate,
+        \DateTime $endDate,
+        $requestedView = FreeBusyViewType::DETAILED_MERGED
+    ) {
+        $request = new GetUserAvailabilityRequestType();
+        $request->TimeZone = new SerializableTimeZone();
+        $request->TimeZone->Bias = 0;
+
+        $request->TimeZone->StandardTime = new SerializableTimeZoneTime();
+        $request->TimeZone->StandardTime->Bias = -60;
+        $request->TimeZone->StandardTime->Time = '02:00:00';
+        $request->TimeZone->StandardTime->DayOrder = 5;
+        $request->TimeZone->StandardTime->Month = 10;
+        $request->TimeZone->StandardTime->DayOfWeek = DayOfWeekType::SUNDAY;
+
+        $request->TimeZone->DaylightTime = new SerializableTimeZoneTime();
+        $request->TimeZone->DaylightTime->Bias = -120;
+        $request->TimeZone->DaylightTime->Time = '02:00:00';
+        $request->TimeZone->DaylightTime->DayOrder = 1;
+        $request->TimeZone->DaylightTime->Month = 4;
+        $request->TimeZone->DaylightTime->DayOfWeek = DayOfWeekType::SUNDAY;
+
+        $request->MailboxDataArray = new ArrayOfMailboxData();
+        $request->MailboxDataArray->MailboxData = new MailboxData();
+        $request->MailboxDataArray->MailboxData->Email = new EmailAddress();
+        $request->MailboxDataArray->MailboxData->Email->Address = $email;
+        $request->MailboxDataArray->MailboxData->AttendeeType = MeetingAttendeeType::ROOM;
+        $request->MailboxDataArray->MailboxData->ExcludeConflicts = false;
+
+        $request->FreeBusyViewOptions = new FreeBusyViewOptionsType();
+        $request->FreeBusyViewOptions->TimeWindow = new Duration();
+        $request->FreeBusyViewOptions->TimeWindow->StartTime = $startDate->format(DATE_W3C);
+        $request->FreeBusyViewOptions->TimeWindow->EndTime = $endDate->format(DATE_W3C);
+
+        $request->FreeBusyViewOptions->MergedFreeBusyIntervalInMinutes = 30;
+        $request->FreeBusyViewOptions->RequestedView = $requestedView;
+
+        return $request;
     }
 }

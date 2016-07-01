@@ -10,9 +10,15 @@
     "autoload-dev": {
         "psr-4": { "Tests\\": "tests/" }
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/vincentlepot/php-ews"
+        }
+    ],
     "require":
     {
-        "php-ews/php-ews": "*@dev",
+        "php-ews/php-ews": "dev-fix-expect-header",
         "php": ">=5.5.9",
         "symfony/symfony": "3.1.*",
         "doctrine/orm": "^2.5",
