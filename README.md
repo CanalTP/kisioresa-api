@@ -1,10 +1,10 @@
 # kisioresa-api
 
-This is a project from the (Canal Hacke #4)[http://www.canaltp.fr/Blog/Entry/id/128].
+This is a project from the [Canal Hacke #4](http://www.canaltp.fr/Blog/Entry/id/128).
 
 It aims at seeing the meeting rooms occupied to have a quick look at which room is available or not.
 
-We use the (php-ews/php-ews)[https://github.com/jamesiarmes/php-ews] lib to query the exchange server.
+We use the [php-ews/php-ews](https://github.com/jamesiarmes/php-ews) lib to query the exchange server.
 
 ## Requirements
 
