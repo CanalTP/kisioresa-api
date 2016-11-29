@@ -46,58 +46,24 @@ class ExchangeEws
         $startDate = new \DateTime('today');
         $endDate = (new \DateTime('today'))->modify('+1 day');
 
-        $request = $this->buildBookingRoomRequest($roomMail, $startDate, $endDate);
+        $request = $this->buildBookingRoomRequestFromList([$roomMail], $startDate, $endDate);
 
-        return $this->client->GetUserAvailability($request);
-    }
-
-    public function getBookingDetailByRoom($roomMail, \DateTime $startDate, \DateTime $endDate)
-    {
-        if (!in_array($roomMail, array_keys($this->availableRooms))) {
-            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $roomMail);
-        }
-
-        $request = new FindItemType();
-
-        $request->Traversal = ItemQueryTraversalType::SHALLOW;
-
-        $request->ItemShape = new ItemResponseShapeType();
-        $request->ItemShape->BaseShape = DefaultShapeNamesType::DEFAULT_PROPERTIES;
-
-        // Define the timeframe to load calendar items
-        $request->CalendarView = new CalendarViewType();
-        $request->CalendarView->StartDate = $startDate->format(DATE_W3C);
-        $request->CalendarView->EndDate = $endDate->format(DATE_W3C);
-
-        // Only look in the "calendars folder"
-        $request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
-        $request->ParentFolderIds->DistinguishedFolderId = new DistinguishedFolderIdType();
-        $request->ParentFolderIds->DistinguishedFolderId->Id = DistinguishedFolderIdNameType::CALENDAR;
-        $request->ParentFolderIds->DistinguishedFolderId->Mailbox = new \stdClass;
-        $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $roomMail;
-
-        // Send request
-        return $this->client->FindItem($request);
+        return $this->client->GetUserAvailability($request)
+            ->FreeBusyResponseArray
+            ->FreeBusyResponse
+            ->FreeBusyView
+            ->MergedFreeBusy;
     }
 
     public function isRoomAvailable($roomMail)
     {
         $startDate = new \DateTime('now');
         $endDate = (new \DateTime('now'))->modify('+30 minutes');
-        $request = $this->buildBookingRoomRequest($roomMail, $startDate, $endDate, FreeBusyViewType::DETAILED_MERGED);
+        $request = $this->buildBookingRoomRequestFromList([$roomMail], $startDate, $endDate);
 
         $booking = $this->client->GetUserAvailability($request);
 
         return 0 == $booking->FreeBusyResponseArray->FreeBusyResponse->FreeBusyView->MergedFreeBusy;
-    }
-
-    private function buildBookingRoomRequest(
-        $roomMail,
-        \DateTime $startDate,
-        \DateTime $endDate,
-        $requestedView = FreeBusyViewType::DETAILED_MERGED
-    ) {
-        return $this->buildBookingRoomRequestFromList([$roomMail], $startDate, $endDate, $requestedView);
     }
 
     private function buildBookingRoomRequestFromList(
@@ -146,11 +112,16 @@ class ExchangeEws
         return $request;
     }
 
-    public function getOccupiedRoomCount()
+    public function getOccupiedRoomCount(\DateTime $startDate = null, \DateTime $endDate = null)
     {
-        $startDate = new \DateTime('now');
-        $endDate = (new \DateTime('now'))->modify('+30 minutes');
-        
+        if (null === $startDate) {
+            $startDate = new \DateTime('now');
+        }
+
+        if (null === $endDate) {
+            $endDate = (new \DateTime('now'))->modify('+30 minutes');
+        }
+
         $request = $this->buildBookingRoomRequestFromList(array_keys($this->availableRooms), $startDate, $endDate, FreeBusyViewType::FREE_BUSY_MERGED);
 
         $booking = $this->client->GetUserAvailability($request);
@@ -185,17 +156,17 @@ class ExchangeEws
             if (is_array($booking->FreeBusyResponseArray->FreeBusyResponse)) {
                 for ($cpt = 0; $cpt < count($equivalentRooms); $cpt++) {
                     if (0 == $booking->FreeBusyResponseArray->FreeBusyResponse[$cpt]->FreeBusyView->MergedFreeBusy) {
-                        $equivalentAvailableRooms[$equivalentRooms[$cpt]] = $this->availableRooms[$equivalentRooms[$cpt]];
+                        $equivalentAvailableRooms[$equivalentRooms[$cpt]] = array_merge($this->availableRooms[$equivalentRooms[$cpt]], ['email' => $equivalentRooms[$cpt]]);
                     }
                 }
             } else {
                 if (0 == $booking->FreeBusyResponseArray->FreeBusyResponse->FreeBusyView->MergedFreeBusy) {
-                    $equivalentAvailableRooms[$equivalentRooms[0]] = $this->availableRooms[$equivalentRooms[0]];
+                    $equivalentAvailableRooms[$equivalentRooms[0]] = array_merge($this->availableRooms[$equivalentRooms[0]], ['email' => $equivalentRooms[0]]);
                 }
             }
             $baseRoomConfig = $this->availableRooms[$roomMail];
 
-            usort($equivalentAvailableRooms, function($a, $b) use ($baseRoomConfig) {
+            usort($equivalentAvailableRooms, function ($a, $b) use ($baseRoomConfig) {
                 return (abs($a['floor'] - $baseRoomConfig['floor']) >= abs($b['floor'] - $baseRoomConfig['floor']));
             });
         }
@@ -208,11 +179,10 @@ class ExchangeEws
         $baseRoomConfig = $this->availableRooms[$baseRoomMail];
 
         $equivalentRooms = [];
-        foreach($this->availableRooms as $roomMail => $roomConfig) {
+        foreach ($this->availableRooms as $roomMail => $roomConfig) {
             if ($roomMail == $baseRoomMail) {
                 continue;
-            } elseif (
-                $roomConfig['places_count'] <= $baseRoomConfig['places_count'] + 2
+            } elseif ($roomConfig['places_count'] <= $baseRoomConfig['places_count'] + 2
                 && $roomConfig['places_count'] >= $baseRoomConfig['places_count'] - 2
             ) {
                 $equivalentRooms[] = $roomMail;
@@ -220,5 +190,55 @@ class ExchangeEws
         }
 
         return $equivalentRooms;
+    }
+
+    public function getOrganizer($email, \DateTime $startDate = null, \DateTime $endDate = null)
+    {
+        return $this->getBookingDetailByRoom($email, $startDate, $endDate)
+            ->ResponseMessages
+            ->FindItemResponseMessage
+            ->RootFolder
+            ->Items
+            ->CalendarItem
+            ->Organizer
+            ->Mailbox
+            ->Name;
+    }
+
+    private function getBookingDetailByRoom($roomMail, \DateTime $startDate = null, \DateTime $endDate = null)
+    {
+        if (!in_array($roomMail, array_keys($this->availableRooms))) {
+            throw new InvalidArgumentException(sprintf('The room email %s is not yet implemented or does not exist.'), $roomMail);
+        }
+
+        if (null === $startDate) {
+            $startDate = new \DateTime();
+        }
+
+        if (null === $endDate) {
+            $endDate = (new \DateTime())->modify('+30 minutes');
+        }
+
+        $request = new FindItemType();
+
+        $request->Traversal = ItemQueryTraversalType::SHALLOW;
+
+        $request->ItemShape = new ItemResponseShapeType();
+        $request->ItemShape->BaseShape = DefaultShapeNamesType::DEFAULT_PROPERTIES;
+
+        // Define the timeframe to load calendar items
+        $request->CalendarView = new CalendarViewType();
+        $request->CalendarView->StartDate = $startDate->format(DATE_W3C);
+        $request->CalendarView->EndDate = $endDate->format(DATE_W3C);
+
+        // Only look in the "calendars folder"
+        $request->ParentFolderIds = new NonEmptyArrayOfBaseFolderIdsType();
+        $request->ParentFolderIds->DistinguishedFolderId = new DistinguishedFolderIdType();
+        $request->ParentFolderIds->DistinguishedFolderId->Id = DistinguishedFolderIdNameType::CALENDAR;
+        $request->ParentFolderIds->DistinguishedFolderId->Mailbox = new \stdClass;
+        $request->ParentFolderIds->DistinguishedFolderId->Mailbox->EmailAddress = $roomMail;
+
+        // Send request
+        return $this->client->FindItem($request);
     }
 }
